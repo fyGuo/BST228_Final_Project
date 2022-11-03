@@ -1,0 +1,66 @@
+---
+title: "BMA_try"
+author: "Fuyu Guo"
+date: '2022-11-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(devtools)
+library(BAS)
+```
+
+# clean data
+```{r}
+# use the training dataset
+dta <-read_rds("clean_data_train.rds")
+dta <- dta %>% dplyr::select( -c(FAMSIZE, BIRTHYR, YRMARR, DIVINYR,WIDINYR, dataset, DEPARTS, ARRIVES, CLASSWKR, INCBUS00, INCWELFR))
+# randomly select 1000 samples
+set.seed(123)
+
+dta_sample <- dta %>% slice_sample(n= 1000)
+```
+
+
+- SE:sex
+- AGE: age
+- MARST: marital status (categorical)
+- RACE: ethinicty (categorical)
+- HISPAN: Hispanic or not
+- HCOVANY: covered by any health insurance, yes or no
+- EDUC: Educational experience (categorical)
+- UHRS: work hours per week
+- WORKEDYR: worked in the last year or not
+- INCTOT: Personal total income
+- FTOTINC: Family total income
+- INCWAGE: Wage and salary income
+- VETSTAT: Veteran status, yes or no
+- GCHOUSE: have a grandchild in the house
+- WORK_STATUS: working status in the last year 
+
+# try BMA with g_prior (sqrt(n))
+```{r}
+library(tictoc)
+tic()
+fit1 <- bas.glm(DIFFHEAR~.,
+                 family = binomial(),
+                 data = dta_sample,
+                 betaprior = g.prior(sqrt(dim(dta_sample)[1])),
+                 modelprior = beta.binomial(1, 1),
+                 method = "MCMC")
+toc()
+coef(fit1)
+```
+
+```{r}
+summary(fit1)
+```
+```{r}
+diagnostics(fit1, type = "pip")
+diagnostics(fit1, type = "model")
+```
