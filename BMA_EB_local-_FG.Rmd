@@ -1,11 +1,11 @@
 ---
-title: "BMA_try"
+title: "BMA_EB_local"
 author: "Fuyu Guo"
 date: '2022-11-03'
 output: html_document
 ---
-
-```{r setup, include=FALSE}
+  
+  ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -23,7 +23,7 @@ dta <- dta %>% dplyr::select( -c(FAMSIZE, BIRTHYR, YRMARR, DIVINYR,WIDINYR, data
 # randomly select 1000 samples
 set.seed(123)
 
-#dta_sample <- dta %>% slice_sample(n= 1000)
+dta_sample <- dta %>% slice_sample(n= 1000)
 ```
 
 
@@ -43,16 +43,16 @@ set.seed(123)
 - GCHOUSE: have a grandchild in the house
 - WORK_STATUS: working status in the last year 
 
-# try BMA with g_prior (sqrt(n))
+# try BMA with EB_location
 ```{r}
 library(tictoc)
 tic()
 fit1 <- bas.glm(DIFFHEAR~.,
-                 family = binomial(),
-                 data = dta,
-                 betaprior = g.prior(sqrt(dim(dta)[1])),
-                 modelprior = beta.binomial(1, 1),
-                 method = "MCMC")
+                family = binomial(),
+                data = dta_sample,
+                betaprior = EB.local(),
+                modelprior = beta.binomial(1, 10),
+                method = "MCMC")
 toc()
 coef(fit1)
 ```
