@@ -1,0 +1,44 @@
+---
+title: "Table1"
+author: "Fuyu Guo"
+date: "2022-12-09"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(devtools)
+library(BAS)
+```
+
+# clean data
+```{r}
+# use the training dataset
+dta <-read_rds("clean_data_whole.rds")
+dta <- dta %>% dplyr::select( -c(FAMSIZE, BIRTHYR, YRMARR, DIVINYR,WIDINYR, dataset, DEPARTS, ARRIVES, CLASSWKR, INCBUS00, INCWELFR))
+```
+
+```{r}
+library(tableone)
+vars <- colnames(dta)
+factorVars <- c("SEX", "MARST", "RACE", "HISPAN", "EDUC", 
+                "WORKEDYR", "VETSTAT", "GCHOUSE", "HCOVANY",
+                "WORK_STATUS")
+table1 <- CreateTableOne(
+  vars = vars,
+  factorVars = factorVars,
+  strata = "DIFFHEAR",
+  data = dta)
+table1
+```
+
+
+
+```{r}
+table2 <- CreateTableOne(
+  vars = vars,
+  factorVars = factorVars,
+  data = dta)
+table2
+```

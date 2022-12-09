@@ -18,12 +18,8 @@ library(BAS)
 # clean data
 ```{r}
 # use the training dataset
-dta <-read_rds("clean_data_train.rds")
+dta <-read_rds("clean_data_whole.rds")
 dta <- dta %>% dplyr::select( -c(FAMSIZE, BIRTHYR, YRMARR, DIVINYR,WIDINYR, dataset, DEPARTS, ARRIVES, CLASSWKR, INCBUS00, INCWELFR))
-# randomly select 1000 samples
-set.seed(123)
-
-dta_sample <- dta %>% slice_sample(n= 1000)
 ```
 
 
@@ -49,18 +45,32 @@ library(tictoc)
 tic()
 fit1 <- bas.glm(DIFFHEAR~.,
                 family = binomial(),
-                data = dta_sample,
+                data = dta,
                 betaprior = EB.local(),
                 modelprior = beta.binomial(1, 10),
                 method = "MCMC")
 toc()
 coef(fit1)
+saveRDS(fit1, file = "BMA_EB_local.rds")
+fit1 <- read_rds("BMA_EB_local.rds")
 ```
 
 ```{r}
 summary(fit1)
 ```
 ```{r}
+png("pip_EB_local.png",
+    width = 480, 
+    height = 480,
+    units = "px")
 diagnostics(fit1, type = "pip")
+dev.off()
+
+
+png("post_model_EB_local.png",
+    width = 480, 
+    height = 480,
+    units = "px")
 diagnostics(fit1, type = "model")
+dev.off()
 ```
